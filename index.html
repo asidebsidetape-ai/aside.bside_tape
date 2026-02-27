@@ -3,7 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>遊戲隨機抽籤 V1.0</title>
+    <title>遊戲隨機抽籤 V1.1</title>
+
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <style>
         /* 基礎設定：撐滿全螢幕 */
         html, body {
@@ -14,7 +22,7 @@
             background-color: #000;
             color: #fff;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden; /* 防止滑動 */
+            overflow: hidden;
         }
 
         body {
@@ -22,14 +30,14 @@
             flex-direction: column;
         }
 
-        /* 四個大格子佔滿剩餘空間 */
+        /* 四個大格子 */
         .grid {
             flex-grow: 1;
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
-            gap: 2px; /* 格線感 */
-            background-color: #333; /* 格線顏色 */
+            gap: 2px;
+            background-color: #333;
         }
 
         .box {
@@ -65,7 +73,7 @@
             font-size: 24px;
             font-weight: bold;
             cursor: pointer;
-            padding-bottom: env(safe-area-inset-bottom); /* 適應 iPhone 底部槓槓 */
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         button:active {
@@ -78,42 +86,39 @@
     <div class="grid">
         <div class="box">
             <div class="label">遊戲道路</div>
-            <div class="content" id="c1">?</div>
+            <div id="c1" class="content">?</div>
         </div>
         <div class="box">
             <div class="label">環境設定</div>
-            <div class="content" id="c2">?</div>
+            <div id="c2" class="content">?</div>
         </div>
         <div class="box">
             <div class="label">遊戲角色</div>
-            <div class="content" id="c3">?</div>
+            <div id="c3" class="content">?</div>
         </div>
         <div class="box">
             <div class="label">NPC角色</div>
-            <div class="content" id="c4">?</div>
+            <div id="c4" class="content">?</div>
         </div>
     </div>
     
     <button onclick="draw()">隨 機 抽 籤</button>
 
     <script>
-        // --- 這裡可以自定義你的清單 ---
-        const data1 = ["道路A", "道路B", "道路C", "道路D", "道路E", "道路F", "道路G", "道路H", "道路I"];
-        const data2 = ["設定1", "設定2", "設定3", "設定4", "設定5"];
-        const data3 = ["角色1", "角色2", "角色3", "角色4", "角色5", "角色6", "角色7", "角色8", "角色9", "角色10", "角色11", "角色12", "角色13", "角色14", "角色15", "角色16", "角色17", "角色18", "角色19", "角色20"];
-        const data4 = ["NPC 1", "NPC 2", "NPC 3", "NPC 4", "NPC 5", "NPC 6", "NPC 7", "NPC 8", "NPC 9", "NPC 10", "NPC 11", "NPC 12", "NPC 13"];
+        // 你的資料清單
+        const d1 = ["道路A", "道路B", "道路C", "道路D", "道路E", "道路F", "道路G", "道路H", "道路I"];
+        const d2 = ["設定1", "設定2", "設定3", "設定4", "設定5"];
+        const d3 = Array.from({length: 20}, (_, i) => "角色 " + (i + 1));
+        const d4 = Array.from({length: 13}, (_, i) => "NPC " + (i + 1));
 
         function draw() {
-            // 增加手機震動回饋 (如果是 Android)
-            if (navigator.vibrate) {
-                navigator.vibrate(50);
-            }
+            // 手機震動回饋
+            if (navigator.vibrate) navigator.vibrate(50);
 
-            // 執行抽籤
-            document.getElementById('c1').innerText = data1[Math.floor(Math.random() * data1.length)];
-            document.getElementById('c2').innerText = data2[Math.floor(Math.random() * data2.length)];
-            document.getElementById('c3').innerText = data3[Math.floor(Math.random() * data3.length)];
-            document.getElementById('c4').innerText = data4[Math.floor(Math.random() * data4.length)];
+            document.getElementById('c1').innerText = d1[Math.floor(Math.random() * d1.length)];
+            document.getElementById('c2').innerText = d2[Math.floor(Math.random() * d2.length)];
+            document.getElementById('c3').innerText = d3[Math.floor(Math.random() * d3.length)];
+            document.getElementById('c4').innerText = d4[Math.floor(Math.random() * d4.length)];
         }
     </script>
 
