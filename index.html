@@ -3,124 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>遊戲隨機抽籤 V1.1</title>
+    <title>魔法抽籤 V1.6</title>
 
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" type="image/png" href="icon.png">
-
+    <link rel="apple-touch-icon" href="lotus.png">
+    <link rel="icon" type="image/png" href="lotus.png">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
 
     <style>
-        /* 基礎設定：撐滿全螢幕 */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; color: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
+        
+        /* 第一階段：骰子滾動畫面 */
+        #dice-trigger {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #4a0404 0%, #000 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; transition: opacity 0.6s ease;
         }
 
-        body {
-            display: flex;
-            flex-direction: column;
+        #dice-trigger img {
+            width: 180px; height: 180px; border-radius: 35px;
+            cursor: pointer; transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* 四個大格子 */
-        .grid {
-            flex-grow: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 2px;
-            background-color: #333;
-        }
+        /* 呼吸動畫 */
+        .pulse { animation: pulse-anim 2s infinite ease-in-out; }
+        @keyframes pulse-anim { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
-        .box {
-            background-color: #000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 15px;
-        }
+        /* 滾動動畫：快速旋轉並放大 */
+        .rolling { transform: rotate(720deg) scale(0.5) !important; opacity: 0.5; }
 
-        .label {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 12px;
-            letter-spacing: 1px;
-        }
+        .hint { color: #8a6d6d; margin-top: 25px; letter-spacing: 3px; font-size: 14px; transition: opacity 0.3s; }
 
-        .content {
-            font-size: 26px;
-            font-weight: 900;
-            word-break: break-all;
-        }
-
-        /* 底部超大按鈕 */
-        button {
-            height: 100px;
-            width: 100%;
-            background-color: #fff;
-            color: #000;
-            border: none;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
+        /* 第二階段：抽籤結果頁面 */
+        #result-page { display: none; height: 100%; flex-direction: column; opacity: 0; transition: opacity 0.5s; }
+        .grid { flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; background-color: #333; }
+        .box { background-color: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px; }
+        .label { font-size: 14px; color: #888; margin-bottom: 12px; letter-spacing: 1px; }
+        .content { font-size: 26px; font-weight: 900; color: #ffd700; }
+        
+        /* 底部按鈕 */
+        .re-draw { 
+            height: 100px; width: 100%; background-color: #fff; color: #000; 
+            border: none; font-size: 20px; font-weight: bold; cursor: pointer;
             padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        button:active {
-            background-color: #aaa;
         }
     </style>
 </head>
 <body>
 
-    <div class="grid">
-        <div class="box">
-            <div class="label">遊戲道路</div>
-            <div id="c1" class="content">?</div>
-        </div>
-        <div class="box">
-            <div class="label">環境設定</div>
-            <div id="c2" class="content">?</div>
-        </div>
-        <div class="box">
-            <div class="label">遊戲角色</div>
-            <div id="c3" class="content">?</div>
-        </div>
-        <div class="box">
-            <div class="label">NPC角色</div>
-            <div id="c4" class="content">?</div>
-        </div>
+    <div id="dice-trigger" onclick="startRolling()">
+        <img src="dice.png" id="mainDice" class="pulse" alt="Magic Dice"> 
+        <div id="hintText" class="hint">點 擊 骰 子 開 啟 預 言</div>
     </div>
-    
-    <button onclick="draw()">隨 機 抽 籤</button>
+
+    <div id="result-page">
+        <div class="grid">
+            <div class="box"><div class="label">遊戲道路</div><div id="c1" class="content">?</div></div>
+            <div class="box"><div class="label">環境設定</div><div id="c2" class="content">?</div></div>
+            <div class="box"><div class="label">遊戲角色</div><div id="c3" class="content">?</div></div>
+            <div class="box"><div class="label">NPC角色</div><div id="c4" class="content">?</div></div>
+        </div>
+        <button class="re-draw" onclick="location.reload()">重 新 啟 動</button>
+    </div>
 
     <script>
-        // 你的資料清單
-        const d1 = ["道路A", "道路B", "道路C", "道路D", "道路E", "道路F", "道路G", "道路H", "道路I"];
-        const d2 = ["設定1", "設定2", "設定3", "設定4", "設定5"];
+        const d1 = ["道路A", "道路B", "道路C", "道路D", "道路E", "道路F"];
+        const d2 = ["環境1", "環境2", "環境3", "環境4"];
         const d3 = Array.from({length: 20}, (_, i) => "角色 " + (i + 1));
         const d4 = Array.from({length: 13}, (_, i) => "NPC " + (i + 1));
 
-        function draw() {
-            // 手機震動回饋
-            if (navigator.vibrate) navigator.vibrate(50);
+        function startRolling() {
+            const dice = document.getElementById('mainDice');
+            const hint = document.getElementById('hintText');
+            const triggerPage = document.getElementById('dice-trigger');
+            const resultPage = document.getElementById('result-page');
 
-            document.getElementById('c1').innerText = d1[Math.floor(Math.random() * d1.length)];
-            document.getElementById('c2').innerText = d2[Math.floor(Math.random() * d2.length)];
-            document.getElementById('c3').innerText = d3[Math.floor(Math.random() * d3.length)];
-            document.getElementById('c4').innerText = d4[Math.floor(Math.random() * d4.length)];
+            // 1. 開始滾動效果
+            dice.classList.remove('pulse');
+            dice.classList.add('rolling');
+            hint.style.opacity = '0';
+
+            // 2. 0.6秒後切換畫面
+            setTimeout(() => {
+                triggerPage.style.opacity = '0';
+                
+                setTimeout(() => {
+                    triggerPage.style.display = 'none';
+                    resultPage.style.display = 'flex';
+                    
+                    // 3. 顯示結果並執行隨機
+                    setTimeout(() => {
+                        resultPage.style.opacity = '1';
+                        document.getElementById('c1').innerText = d1[Math.floor(Math.random() * d1.length)];
+                        document.getElementById('c2').innerText = d2[Math.floor(Math.random() * d2.length)];
+                        document.getElementById('c3').innerText = d3[Math.floor(Math.random() * d3.length)];
+                        document.getElementById('c4').innerText = d4[Math.floor(Math.random() * d4.length)];
+                    }, 50);
+                }, 600);
+            }, 600);
         }
     </script>
-
 </body>
 </html>
